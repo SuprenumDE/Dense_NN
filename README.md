@@ -13,6 +13,6 @@
 
 ### Here is an overview of what Dense_NN does ...
 
-![Realization](EigenNNET/images/Realization.png).
+![Realization](https://github.com/SuprenumDE/EigenNET/blob/main/images/Strategic_Partner.png).
 
 ### ... and all this without a gigantic framework such as TensorFlow!
