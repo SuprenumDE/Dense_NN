@@ -11,8 +11,13 @@
 
 
 
-### Here is an overview of what Dense_NN does ...
+**Here is an overview of what Dense_NN does ...**
 
-![Realization](https://github.com/SuprenumDE/EigenNET/blob/main/images/Strategic_Partner.png).
+![Realization](https://github.com/SuprenumDE/EigenNET/blob/main/images/Realization.png).
 
-### ... and all this without a gigantic framework such as TensorFlow!
+**... and all this without a gigantic framework such as TensorFlow!**
+
+Dense_NN, version 0.1.09 dated September 3, 2025, was developed under ISO standard C++20 and Eigen version 3.4.0.
+
+Dense_NN can be installed on *Windows using an msi file*, and the program execution arguments are displayed via “help”:
+
