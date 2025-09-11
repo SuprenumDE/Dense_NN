@@ -21,3 +21,5 @@ Dense_NN, version 0.1.09 dated September 3, 2025, was developed under ISO standa
 
 Dense_NN can be installed on *Windows using an msi file*, and the program execution arguments are displayed via “help”:
 
+![Dense_NN Help](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_NN_Help.png)
+
