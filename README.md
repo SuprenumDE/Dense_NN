@@ -45,3 +45,24 @@ Dense_NN can be installed on *Windows using an msi file*, and the program execut
 | **--print_config**  |Outputs the current configuration                                                                                           |
 | **--help**          |Displays help                                                                                                               |
 
+### A typical *R* and *Dense_NN* training workflow
+
+A typical R and Dense_NN training workflow is described by the following images:
+
+* **Prepare data, clean up (remove inconsistent data and extreme values) and start training:**
+
+![Workflow_1](https://github.com/SuprenumDE/EigenNET/blob/main/images/Workflow_1.png)
+
+* **Evaluation of training quality:**
+
+![Workflow_2](https://github.com/SuprenumDE/EigenNET/blob/main/images/Workflow_2.png)
+
+* **Evaluation if the training parameters should be adjusted:**
+
+![Workflow_3](https://github.com/SuprenumDE/EigenNET/blob/main/images/Workflow_3.png)
+
+* **And finally, performing the network test based on the test data:**
+
+![Workflow_4](https://github.com/SuprenumDE/EigenNET/blob/main/images/Workflow_4.png)
+
+
