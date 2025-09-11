@@ -41,4 +41,7 @@ Dense_NN can be installed on *Windows using an msi file*, and the program execut
 | **--learning_rate** |Learning rate (default: 0.01)                                                                                               |
 | **--lr_mode**       |Adjusting the learning rate using the *decay* or *step* methods (default:"")                                                |
 | **--init**          |Network weight initialization method (HE, XAVIER) (default: HE)                                                             |
+| **--min_delta**     |Minimal improvement for early training stop (default: 0.0001)                                                               |
+| **--print_config**  |Outputs the current configuration                                                                                           |
+| **--help**          |Displays help                                                                                                               |
 
