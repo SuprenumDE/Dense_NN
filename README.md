@@ -13,6 +13,6 @@
 
 ### Here is an overview of what Dense_NN does ...
 
-![Realization](/images/Realization.png).
+![Realization](EigenNNET/images/Realization.png).
 
 ### ... and all this without a gigantic framework such as TensorFlow!
