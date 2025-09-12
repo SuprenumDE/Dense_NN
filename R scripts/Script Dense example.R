@@ -55,9 +55,9 @@
 #  ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --dataset=mnist.csv
 
 #Further information:
-#  Guenter Faes, Mail: spv@faes.de
+#  Guenter Faes, Mail: eigennet@faes.de
 #  YouTube: https://www.youtube.com/@r-statistik
-#  GitHub:  https://github.com/dein-repo/EIGENnet
+#  GitHub:   https://github.com/SuprenumDE/Dense_NN
 # ################################################################################
 
 system("./Dense_NN --help")
@@ -412,3 +412,4 @@ abline(h = 0, col = "red", lwd = 2)
 par(mfrow = c(1,1))
     
 #################### End of script ###########################################
+
