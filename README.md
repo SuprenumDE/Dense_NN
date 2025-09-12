@@ -18,6 +18,7 @@
 **... and all this without a gigantic framework such as TensorFlow!**
 
 Dense_NN, *version 0.1.09* dated September 3, 2025, was developed under ISO standard C++20 and Eigen version 3.4.0.
+I would be delighted if this project is helpful to you and you use it or contribute to it.
 
 Dense_NN can be installed on *Windows using an msi file*, and the program execution arguments are displayed via “help”:
 
