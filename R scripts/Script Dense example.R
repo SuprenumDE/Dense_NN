@@ -57,7 +57,7 @@
 #Further information:
 #  Guenter Faes, Mail: eigennet@faes.de
 #  YouTube: https://www.youtube.com/@r-statistik
-#  GitHub:   https://github.com/SuprenumDE/Dense_NN
+#  GitHub:  https://github.com/SuprenumDE/Dense_NN
 # ################################################################################
 
 system("./Dense_NN --help")
@@ -80,7 +80,7 @@ library(AmesHousing)  # Datensatz ames (Alternative zu Boston Housing)
 rm(list = ls())
 
 ### Functions:
-source("scale_features.R")  # scaling function
+source("I:/R Projekte/Calling_C_NN/scale_features.R")  # scaling function
 
 ############################ Prepare data ##########################
 #
@@ -220,7 +220,7 @@ round(Tabelle_VG_gesamt, 2)
 rm(list = ls())
 
 ### Reload functions:
-source("scale_features.R")  # scaling functions
+source("I:/R Projekte/Calling_C_NN/scale_features.R")  # scaling functions
 
 # ----- Import, check, and edit data records ------
 
@@ -412,4 +412,3 @@ abline(h = 0, col = "red", lwd = 2)
 par(mfrow = c(1,1))
     
 #################### End of script ###########################################
-
