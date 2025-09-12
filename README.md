@@ -92,3 +92,16 @@ The *lib* directory contains the necessary libraries for the C++ program and is 
 
 ![Dense_NN_lib](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_NN_lib.png)
 
+### What can the Dense_NN installation look like in the R environment?
+
+The Dense_NN installation is done in an R project directory as an example. The example path is also shown in the R script “Script Dense example.R”. The R working directory was *set for the bin directory*:
+
+![R Env_1](https://github.com/SuprenumDE/EigenNET/blob/main/images/R_Env_1.png)
+
+The bin directory is therefore the R working directory, and the files mentioned above are stored in or under this directory:
+
+![R Env_2](https://github.com/SuprenumDE/EigenNET/blob/main/images/R_Env_2.png)
+
+**So, it is very important that you set the bin directory as the R working directory, then the R scripts in this repository will run!**
+
+
