@@ -66,4 +66,28 @@ A typical R and Dense_NN training workflow is described by the following images:
 
 ![Workflow_4](https://github.com/SuprenumDE/EigenNET/blob/main/images/Workflow_4.png)
 
+### Where can I find which file(s)?
+Dense_NN.exe is installed in the *bin* directory. The training and test files *must be located* in this directory. 
+
+![Dense_NN_bin](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_bin.png)
+
+The training process generates two files: 
+
+<ul>
+<li>nn_parameter.json and </li>
+<li>training_log.csv.</li>
+</ul>
+
+The *nn_parameter.json* file stores the network parameters, as these are required to test the network with Dense_NN in mode = 2 (test mode). Take a look at the file, but please **do not change anything!**
+
+The *training_log.csv* file contains the training parameters for training quality. It is read by the R script *Display_Training_Progress.R*. The script is, of course, only an example!
+
+After training, the *neuron weights* are stored in the weights directory as a *simple* CSV file:
+
+![Dense_NN_bin_weights](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_bin_weights.png)
+
+This information is also displayed as a headmap using the R script *Display_Training_Progress.R*. This display is quite interesting for assessing whether the neurons are learning anything and how well.
+
+The lib directory contains the necessary libraries for the C++ program and is only mentioned here for the reason of completeness.
+
 
