@@ -88,6 +88,7 @@ After training, the *neuron weights* are stored in the weights directory as a *s
 
 This information is also displayed as a headmap using the R script *Display_Training_Progress.R*. This display is quite interesting for assessing whether the neurons are learning anything and how well.
 
-The lib directory contains the necessary libraries for the C++ program and is only mentioned here for the reason of completeness.
+The *lib* directory contains the necessary libraries for the C++ program and is only mentioned here for the reason of completeness.
 
+![Dense_NN_lib](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_NN_lib.png)
 
