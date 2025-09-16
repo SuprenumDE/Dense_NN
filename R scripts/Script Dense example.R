@@ -65,7 +65,7 @@ system("./Dense_NN --help")
 ################################################################################
 
 ### Required packages:
-library(ggplot2)      # für heatmad
+library(ggplot2)      # für heatmap
 library(rsample)      # to create a training and test data set
 library(AmesHousing)  # Datensatz ames (Alternative zu Boston Housing)
 
@@ -412,3 +412,4 @@ abline(h = 0, col = "red", lwd = 2)
 par(mfrow = c(1,1))
     
 #################### End of script ###########################################
+
