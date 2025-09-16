@@ -96,7 +96,7 @@ for (file in weight_files) {
       midpoint = 0
     ) +
     labs(
-      title = paste("Heatmap der Gewichte – Layer", layer_num),
+      title = paste("Heat map of weights – Layer", layer_num),
       x     = "Neuron",
       y     = "Input"
     ) +
