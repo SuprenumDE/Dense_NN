@@ -36,7 +36,7 @@ Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/ins
 |                     | directory under the Dense_NN working directory. (default: weights.csv)                                                     |
 | **--epochs**        | Number of training epochs (default: 100)                                                                                   |
 | **--loss**          | Loss function: CROSS_ENTROPY, MAE, or MSE  (default: CROSS_ENTROPY for classification models)                              |
-| **--samples**       |Number of training/test samples (default: 1000)                                                                             |
+| **--samples**       |Number of training/test samples (default: 1000, -1 for all data in the data set)                                                                             |
 | **--batch**         |Minibatch size (32, 64, or 128) (default: 64)                                                                               |
 | **--val**           |Proportion of data for validation (e.g., 0.2, means that 20% of the training data is used for validation.) (default: 0.2)   |
 | **--learning_rate** |Learning rate (default: 0.01)                                                                                               |
