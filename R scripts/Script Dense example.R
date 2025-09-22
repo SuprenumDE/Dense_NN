@@ -11,7 +11,7 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.6, 03.09.2025
+## Version 0.0.7, 22.09.2025
 ## R-Version: 4.5.1  
 ## OS Windows 10/11
 ##
@@ -65,9 +65,10 @@ system("./Dense_NN --help")
 ################################################################################
 
 ### Required packages:
-library(ggplot2)      # für heatmap
+library(ggplot2)      # for heatmap
+library(visNetwork)   # To illustrate the neural connections
 library(rsample)      # to create a training and test data set
-library(AmesHousing)  # Datensatz ames (Alternative zu Boston Housing)
+library(AmesHousing)  # Datensst ames (Alternative to Boston Housing)
 
 ################################################################################
 #
@@ -113,6 +114,7 @@ scaled_features <- scale_features(features, scaling_method)
 
 # ---- Required data structure: Label + Features: ----
 data_ready <- data.frame(label, scaled_features)
+data_size <- dim(data_ready) # Only for labeling!
 
 
 # Export without header:
@@ -130,7 +132,7 @@ Trainingsdatensatz <- "neu_mnist_train.csv"
 Architektur <- c(784,128,64,10)
 Aktivierungsfunktionen <- c("relu,relu,softmax")
 Epochen <- 150
-n_Trainingssample <- 60000
+n_Trainingssample <- data_size[1] # Just an informational text! You can also write “complete data set”!
 Batch_Size <- 128
 Lernrate <- 0.01
 Lr_dynamisch <- "decay"
@@ -148,7 +150,7 @@ system2("Dense_NN.exe",
        "--loss=CROSS_ENTROPY", 
        "--dataset=neu_mnist_train.csv", 
        "--epochs=150", 
-       "--samples=60000", 
+       "--samples=-1",     # complete data set
        "--batch=128", 
        "--learning_rate=0.01",
        "--lr_mode=decay",
@@ -313,6 +315,7 @@ ames <- read.csv("ames_num.csv", colClasses = c(Sale_Price = "numeric"))
 # ---- Split into training and test data sets ----
 split <- initial_split(ames, prop = 0.9)
 ames_train <- training(split)
+ames_train_size <- dim(ames_train) # Only for labeling!
 ames_test <- testing(split)
 
 # ----- Export as CSV file -----
@@ -331,7 +334,7 @@ Trainingsdatensatz <- output_file_train
 Architektur <- c(63,48,32,16,1)
 Aktivierungsfunktionen <- c("relu,relu,sigmoid,none")
 Epochen <- 150
-n_Trainingssample <- 2632
+n_Trainingssample <- ames_train_size[1]
 Batch_Size <- 32
 Lernrate <- 0.03
 Lr_dynamisch <- ""
@@ -345,7 +348,7 @@ system2("Dense_NN.exe",
           "--loss=MSE", 
           "--dataset=ames_train.csv", 
           "--epochs=150", 
-          "--samples=2632", 
+          "--samples=-1",     # -1 = complete data set, or maybe just 2000 data records?
           "--batch=32", 
           "--learning_rate=0.03",
           "--min_delta=0.00001", 
@@ -412,4 +415,3 @@ abline(h = 0, col = "red", lwd = 2)
 par(mfrow = c(1,1))
     
 #################### End of script ###########################################
-
