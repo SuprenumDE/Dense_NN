@@ -41,7 +41,7 @@ Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/ins
 | **--val**           |Proportion of data for validation (e.g., 0.2, means that 20% of the training data is used for validation.) (default: 0.2)   |
 | **--learning_rate** |Learning rate (default: 0.01)                                                                                               |
 | **--lr_mode**       |Adjusting the learning rate using the *decay* or *step* methods (default:"")                                                |
-| **--init**          |Network weight initialization method (HE, XAVIER) (default: HE)                                                             |
+| **--init**          |Network weight initialization method (HE, XAVIER, LECUN, ORTHOGONAL, UNIFORM, NORMAL) (default: HE)                                                             |
 | **--min_delta**     |Minimal improvement for early training stop (default: 0.0001)                                                               |
 | **--print_config**  |Outputs the current configuration                                                                                           |
 | **--help**          |Displays help                                                                                                               |
