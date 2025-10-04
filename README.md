@@ -48,7 +48,7 @@ Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/ins
 
 ### A typical *R* and *Dense_NN* training workflow
 
-A typical R and Dense_NN training workflow is described by the following images:
+A typical R and Dense_NN training workflow is described by the following images or here as a [YouTube video](https://youtu.be/URUI8-ogtNk).
 
 * **Prepare data, clean up (remove inconsistent data and extreme values) and start training:**
 
