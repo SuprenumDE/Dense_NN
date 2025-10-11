@@ -68,7 +68,7 @@ system("./Dense_NN --help")
 library(ggplot2)      # for heatmap
 library(visNetwork)   # To illustrate the neural connections
 library(rsample)      # to create a training and test data set
-library(AmesHousing)  # Datensst ames (Alternative to Boston Housing)
+library(AmesHousing)  # Dataset ames (Alternative to Boston Housing)
 
 ################################################################################
 #
@@ -88,7 +88,7 @@ source("I:/R Projekte/Calling_C_NN/scale_features.R")  # scaling function
 # It is assumed that the training data/test data file is in csv format.
 # The challenge is to determine whether the label information is in the first or
 # last column in the data set.
-# The program train_nn.exe assumes that the label column is in the first
+# The program Dense_NN.exe assumes that the label column is in the first
 # position in the data set.
 
 # ---- Configuration ----
@@ -120,7 +120,7 @@ data_size <- dim(data_ready) # Only for labeling!
 # Export without header:
 write.table(na.omit(data_ready), file = output_file, sep = ",", row.names = FALSE, col.names = FALSE)
 
-cat("✅ DFile successfully exported as", output_file, "\n")
+cat("File successfully exported as", output_file, "\n")
 
 # Diagnosis: readLines(output_file, n = 5)
 
@@ -213,7 +213,7 @@ round(Tabelle_VG_gesamt, 2)
 
 ################################################################################
 #
-#                          Regressions-Modell
+#                          Regressions Model
 #
 #
 ################################################################################

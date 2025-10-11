@@ -18,8 +18,6 @@
 ##
 ################################################################################
 
-#### Show training progress:
-
 # Read log file:
 log <- read.csv("training_log.csv", skip = 1)
 
@@ -118,3 +116,7 @@ for (file in weight_files) {
   # Output plot:
   print(p)
 }
+
+
+
+### End
