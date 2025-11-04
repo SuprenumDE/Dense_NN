@@ -11,53 +11,58 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.7, 22.09.2025
+## Version 0.0.8, 25.09.2025
 ## R-Version: 4.5.1  
-## OS Windows 10/11
+## OS Windows 11
 ##
 ################################################################################
 # 
-# _________.__                 __________        __   
+#   _________.__                 __________        __   
 # /   _____/|  |__   ____      \______   \ _____/  |_ 
 # \_____  \ |  |  \_/ __ \      |       _// __ \   __\
 # /        \|   Y  \  ___/      |    |   \  ___/|  |  
-#   /_______  /|___|  /\___  >     |____|_  /\___  >__|  
-#   \/      \/     \/             \/     \/      
-#   
-# EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.09, 03.09.2025
+# /_______  /|___|  /\___  >     |____|_  /\___  >__|  
+# \/      \/     \/             \/     \/      
+  
+# EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025, License: MIT
 
 # Usage:
 #  ./Dense_NN [Optionen]
-# 
+
 # Available options:
-# Train or test a neural network
+#   Train or test a neural network
 # Usage:
 #   Dense_NN [OPTION...]
-# 
+
 # -m, --mode arg           Mode: 1=Train, 2=Test, 3=Exit (default: 1)
 # -f, --dataset arg        Data set file (e.g., filename.csv)
 # -c, --architecture arg   Layer sizes separated by commas, e.g. 784,128,64,10
-# -x, --activations arg    Activation functions per layer, separated by commas, e.g., relu, relu, tanh, softmax
+# -x, --activations arg    Activation functions per layer, separated by 
+#                          commas, e.g., relu, relu, tanh, softmax
 # -w, --weights arg        Weights file (e.g., weights.txt) (default: weights.txt)
 # -e, --epochs arg         Number of epochs (default: 100)
-# -z, --loss arg           Loss function: CROSS_ENTROPY, MAE, or MSE (default: CROSS_ENTROPY)
+# -z, --loss arg           Loss function: CROSS_ENTROPY, MAE, or MSE 
+#                          (default: CROSS_ENTROPY)
 # -s, --samples arg        Number of training samples (default: 1000)
 # -b, --batch arg          Minibatch size (32, 64, or 128) (default: 64)
-# -v, --val arg            Proportion of data for validation (e.g., 0.2) (default: 0.2)
+# -v, --val arg            Proportion of data for validation (e.g., 0.2) 
+#                          (default: 0.2)
 # -l, --learning_rate arg  Learning rate (default: 0.01)
 # -r, --lr_mode arg        Learning rate mode (e.g., decay, step) (default: "")
-# -i, --init arg           Initialization method (HE, XAVIER, ...) (default: HE)
-# -d, --min_delta arg      Minimal improvement for early training stop (default: 0.0001)
+# -i, --init arg           Initialization method (HE, XAVIER, ...) 
+#                          (default: HE)
+# -d, --min_delta arg      Minimal improvement for early training stop 
+#                          (default: 0.0001)
 # -p, --print_config       Outputs the current configuration
 # -h, --help               Displays help
 
 # Example:
-#  ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --dataset=mnist.csv
+#    ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --dataset=mnist.csv
 
-#Further information:
-#  Guenter Faes, Mail: eigennet@faes.de
-#  YouTube: https://www.youtube.com/@r-statistik
-#  GitHub:  https://github.com/SuprenumDE/Dense_NN
+# Further information:
+#    Guenter Faes, Mail: eigennet@faes.de
+#    YouTube: https://www.youtube.com/@r-statistik
+#   GitHub:  https://github.com/SuprenumDE/EigenNET
 # ################################################################################
 
 system("./Dense_NN --help")
@@ -81,7 +86,7 @@ library(AmesHousing)  # Dataset ames (Alternative to Boston Housing)
 rm(list = ls())
 
 ### Functions:
-source("I:/R Projekte/Calling_C_NN/scale_features.R")  # scaling function
+source("F:/R-Projekte/Calling_C_NN/scale_features.R")  # scaling function
 
 ############################ Prepare data ##########################
 #
@@ -222,7 +227,7 @@ round(Tabelle_VG_gesamt, 2)
 rm(list = ls())
 
 ### Reload functions:
-source("I:/R Projekte/Calling_C_NN/scale_features.R")  # scaling functions
+source("F:/R Projekte/Calling_C_NN/scale_features.R")  # scaling functions
 
 # ----- Import, check, and edit data records ------
 
