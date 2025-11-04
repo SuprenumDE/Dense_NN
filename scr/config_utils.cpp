@@ -5,7 +5,7 @@
 // Entwickler: Guenter Faes, eigennet@faes.de
 // GitHub: https://github.com/SuprenumDE/Dense_NN
 //
-// Version 0.0.1, 01.08.2025
+// Version 0.0.2, 25.09.2025
 // --------------------------------------
 
 
@@ -76,6 +76,7 @@ bool load_config_from_json(Config& config, const std::string& filename) {
     else if (init_str == "Orthogonal") config.W_init_Methode = InitType::ORTHOGONAL;
     else if (init_str == "Uniform") config.W_init_Methode = InitType::UNIFORM;
     else if (init_str == "Normalverteilung") config.W_init_Methode = InitType::NORMAL;
+	else if (init_str == "Iterative") config.W_init_Methode = InitType::ITERATIVE;
     else return false;
 
     return true;

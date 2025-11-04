@@ -4,7 +4,7 @@
 // Entwickler: Guenter Faes, eigennet@faes.de
 // GitHub: https://github.com/SuprenumDE/Dense_NN
 // Lizenz: MIT (also for all self-developed included h and cpp files)
-// Version 0.1.09, 03.09.2025
+// Version 0.1.10, 25.09.2025
 // Eigen-Version: 3.4.0
 // C-Version: ISO-Standard C++20
 // --------------------------------------
@@ -110,6 +110,7 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
             else if (init == "ORTHOGONAL") config.W_init_Methode = InitType::ORTHOGONAL;
             else if (init == "UNIFORM") config.W_init_Methode = InitType::UNIFORM;
             else if (init == "NORMAL") config.W_init_Methode = InitType::NORMAL;
+            else if (init == "ITERATIVE") config.W_init_Methode = InitType::ITERATIVE;
             else {
                 std::cerr << "Error: Unknown initialization method \"" << init << "\", default value (HE) is used.\n";
                 config.W_init_Methode = InitType::HE;
@@ -160,7 +161,7 @@ void show_help(const cxxopts::Options& options) {
 /_______  /|___|  /\___  >     |____|_  /\___  >__|  
         \/      \/     \/             \/     \/      
 
-EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.09, 03.09.2025
+EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025, License: MIT
 )";
     std::cout << "\nUsage:\n";
     std::cout << "  ./Dense_NN [Optionen]\n\n";
@@ -272,7 +273,7 @@ int main(int argc, char* argv[]) {
 
     if (config.modus == 1) {
 
-		cout << "EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.09, 03.09.2025\n";
+		cout << "EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025\n";
         cout << "Training mode activated.\n\n";
         
         // ---------- Trainings-Modus ---------------------
@@ -309,41 +310,69 @@ int main(int argc, char* argv[]) {
         }
 
      
-        // Verlustfunktion erstellen:
+        // Create loss function:
         unique_ptr<LossFunction> loss_fn = createLossFunction(loss_type);
 
-        // Gewichte und Bias initialisieren, da jetzt input_dim bekannt ist:
+        // Initialize weights and bias, since input_dim is now known:
 
-		std::mt19937 gen(std::random_device{}());            // Zufallszahlengenerator gen für Biasinitalisierung
-        std::normal_distribution<> bias_dist(0.0, 0.01);     // Mittelwert 0, Standardabweichung 0.01
+		std::mt19937 gen(std::random_device{}());            // Random number generator for bias initialization
+        std::normal_distribution<> bias_dist(0.0, 0.01);     // Mean value 0, standard deviation 0.01
 
-		// Sicherstellen, dass die Architektur mit den Daten kompatibel ist:
+		// Ensure that the architecture is compatible with the data:
         if (architecture.front() != dataset.input_dim) {
 			architecture[0] = dataset.input_dim;            // Input-Layer-Größe anpassen
             std::cout << "Warning: Input layer size adjusted to match dataset input dimension: " << dataset.input_dim << "\n\n";
         }
 		
+        // Initialization of weights:
+
+        // Check whether iterative training, load weights from previous training:
+
+        std::vector<Eigen::MatrixXd> pretrained_weights;
+        std::vector<Eigen::VectorXd> pretrained_biases;
+
+        if (W_init_Methode == InitType::ITERATIVE) {
+
+			std::cout << "Iterative training selected. Attempting to load pre-trained weights...\n\n";
+
+            // Loading the net weights from the previous training session:
+            string weight_prefix = "weights";            // z. B. run42          TODO: Unterverzeichnis für die Gewichte fest verdrahtet, muss überarbeitet werden!
+            if (!load_all_weights_biases_csv(pretrained_weights, pretrained_biases, weight_prefix)) {
+                throw std::runtime_error("Iterative initialization failed: Could not load weights.");
+            }
+		} // End of iterative weight loading
+
         for (size_t i = 0; i < architecture.size() - 1; ++i) {
             size_t input_dim = architecture[i];
             size_t output_dim = architecture[i + 1];
 
-            // Initialisierung der Gewichte
-            Eigen::MatrixXd W = initialize_weights(output_dim, input_dim, W_init_Methode);
-            weights.push_back(W);
+            if (W_init_Methode == InitType::ITERATIVE) {
+                // Assign pre-trained weights:
+                if (i >= pretrained_weights.size())
+                    throw std::runtime_error("Missing pretrained weights for layer " + std::to_string(i));
 
-   
-		// Biases initialisieren:
-            // Initialisierung der Biases:
-			Eigen::VectorXd b(output_dim);                     // Bias-Vektor für die Schichten
-            for (int i = 0; i < output_dim; ++i)
-                b(i) = bias_dist(gen);
+                weights.push_back(pretrained_weights[i]);
+                biases.push_back(pretrained_biases[i]);
 
-			// Biases hinzufügen:
-            biases.push_back(b);
+            }
+            else {
+				// Normally: Initialize weights and bias:
+				// This is where the weights are initialized:
+                Eigen::MatrixXd W = initialize_weights(output_dim, input_dim, W_init_Methode);
+                weights.push_back(W);
+
+                // This is where the biases are initialized:
+                Eigen::VectorXd b(output_dim);                     // Bias-Vektor für die Schichten
+                for (int i = 0; i < output_dim; ++i)
+                    b(i) = bias_dist(gen);
+
+                // Add biases:
+                biases.push_back(b);
+            }
 
         }
 
-        // Layer und Parameterzahl ausgeben:
+        // Output layer and number of parameters:
         for (size_t i = 0; i < weights.size(); ++i) {
             std::cout << "Layer " << i << ": "
                 << weights[i].rows() << "x" << weights[i].cols() << " = " << weights[i].rows() * weights[i].cols() << " parameters\n";
@@ -352,17 +381,17 @@ int main(int argc, char* argv[]) {
 		std::cout << "---------------------------------------\n" << "Total number of parameters: " << total_parameters << "\n\n";
         cout << flush;
 
-        val_split = std::clamp(val_split, 0.0f, 1.0f);     // Sicherstellen, dass val_split im gültigen Bereich ist
+        val_split = std::clamp(val_split, 0.0f, 1.0f);     // Ensure that val_split is within the valid range
 
-		size_t num_classes = dataset.num_classes;          // Anzahl der Klassen, nur für Klassifikation relevant
+		size_t num_classes = dataset.num_classes;          // Number of classes, only relevant for classification
 
 
-		// Shuffle & Split in Trainings - und Validierungsdaten:
+		// Shuffle & split in training and validation data:
         vector<Eigen::VectorXd> train_inputs;
         vector<Eigen::VectorXd> train_labels_enc;
         vector<Eigen::VectorXd> val_inputs;
         vector<Eigen::VectorXd> val_labels_enc;
-		// Klassifikations-Labels als Integer oder Float:
+		// Classification labels as integers or floats:
         vector<int> train_labels_int;
         vector<int> val_labels_int;
         vector<float> train_labels_float;
@@ -375,31 +404,31 @@ int main(int argc, char* argv[]) {
                               train_labels_float, val_labels_float);
 
 
-        // Toleranzberechnung:
+        // Tolerance calculation:
         if(dataset.is_classification) {
             config.model_type = ModelType::CLASSIFICATION;
-            // Für Klassifikation: Toleranz auf Basis der Anzahl der Klassen:
+            // For classification: Tolerance based on the number of classes:
             tolerance = 0.1 * num_classes;  // z.B. für 10 Klassen, Toleranz = 1.0
         }
         else {
-            // Für Regression: Toleranz auf Basis der Standardabweichung der Labels:
+            // For regression: tolerance based on the standard deviation of the labels:
             if (train_labels_float.empty()) {
                 cerr << "Error: No training labels found for regression." << endl;
                 return 1;
             }
             else {
                 config.model_type = ModelType::REGRESSION;
-                // Berechnung der Standardabweichung der Trainingslabels:
+                // Calculation of the standard deviation of the training labels:
                 double mean = std::accumulate(train_labels_float.begin(), train_labels_float.end(), 0.0) / train_labels_float.size();
                 double sq_sum = std::inner_product(train_labels_float.begin(), train_labels_float.end(), train_labels_float.begin(), 0.0);
                 double stdev = std::sqrt(sq_sum / train_labels_float.size() - mean * mean);
-                tolerance = 0.1 * stdev; // z.B. 10% der Standardabweichung
+                tolerance = 0.1 * stdev; // e.g., 10% of the standard deviation
 			}
 		}
        
 
 
-        // Training starten:
+        // Start training:
 
         // Zeitmessung für das gesamte Training:
         auto training_start_time = chrono::high_resolution_clock::now();
@@ -692,7 +721,7 @@ int main(int argc, char* argv[]) {
         save_predictions_csv("test_results.csv", true_values, predicted_values);
 
 		// Ready Message:
-		cout << "\nTest mit " << X_test.size() << " Test samples completed. Results saved in 'test_results.csv'.\n";
+		cout << "\nTest with " << X_test.size() << " Test samples completed. Results saved in 'test_results.csv'.\n";
 
 
 		
