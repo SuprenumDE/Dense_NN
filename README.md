@@ -23,7 +23,7 @@ I would be delighted if this project is helpful to you and you use it or contrib
 
 Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/installation%20files) on *Windows using an msi file*, and the program execution arguments are displayed via “help”:
 
-![Dense_NN Help](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_NN_Help_V01_10.png)
+![Dense_NN Help](https://github.com/SuprenumDE/EigenNET/blob/main/images/Dense_NN_V0_1_20.png)
 
 ### The neural network/deep learning network can be trained using the following arguments:
 
@@ -42,8 +42,13 @@ Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/ins
 | **--val**           |Proportion of data for validation (e.g., 0.2, means that 20% of the training data is used for validation.) (default: 0.2)   |
 | **--learning_rate** |Learning rate (default: 0.01)                                                                                               |
 | **--lr_mode**       |Adjusting the learning rate using the *decay* or *step* methods (default:"")                                                |
-| **--init**          |Network weight initialization method (HE, XAVIER, LECUN, ORTHOGONAL, UNIFORM, NORMAL, ***ITERATIVE***) (default: HE)        |
+| **--init**          |Network weight initialization method (HE, XAVIER, LECUN, ORTHOGONAL, UNIFORM, NORMAL, ITERATIVE) (default: HE)        |
 | **--min_delta**     |Minimal improvement for early training stop (default: 0.0001)                                                               |
+| **--optimizer**     |***Optimizer: SGD, RMSProp, Adam (default: SGD)***                                                                                |
+| **--beta1**         |Adam: first moment decay (beta1) (default: 0.9)                                                                             |
+| **--beta2**         |Adam: second moment decay (beta2) (default: 0.999)                                                                          |
+| **--eps**           |Stability term (Adam/RMSProp) (default: 1e-8)                                                                               |
+| **--rho**           |RMSProp: Decay rate for squared gradients (default: 0.9)                                                                              |
 | **--print_config**  |Outputs the current configuration                                                                                           |
 | **--help**          |Displays help                                                                                                               |
 
