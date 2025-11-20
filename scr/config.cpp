@@ -5,7 +5,7 @@
 // Entwickler: Guenter Faes, eigennet@faes.de
 // GitHub: https://github.com/SuprenumDE/Dense_NN
 //
-// Version 0.0.2, 14.08.2025
+// Version 0.0.3, 13.11.2025
 // --------------------------------------
 
 
@@ -13,10 +13,11 @@
 #include <iostream>
 #include "weights_ini.h" // für to_string()
 
+
 void print_config(const Config& config, std::ostream& out) {
     out << "\nCurrent configuration:\n";
     out << "Mode: " << config.modus << "\n";
-    out << "Aata set: " << config.dataset_file << "\n";
+    out << "Data set: " << config.dataset_file << "\n";
     out << "Architecture:: ";
     for (auto size : config.architecture) out << size << " ";
     out << "\nActivations: ";
@@ -30,5 +31,6 @@ void print_config(const Config& config, std::ostream& out) {
     out << "LR mode: " << config.lr_mode << "\n";
     out << "Init method: " << to_string(config.W_init_Methode) << "\n";
 	out << "Loss function: " << to_string(config.loss_type) << "\n";
-    out << "Minimal improvement: " << config.min_delta << "\n";
+    out << "Optimizer: " << to_string(config.optimizer_type) << "\n";
+    out << "Minimal improvement: " << config.min_delta << "\n\n";
 }

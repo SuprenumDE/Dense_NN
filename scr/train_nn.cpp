@@ -1,10 +1,10 @@
 // train_nn.cpp /Dense_NN
-// Neuronales Netz vom Typ Dense auf Basis von "Eigen"
+// Dense neural network based on “Eigen”
 // 
-// Entwickler: Guenter Faes, eigennet@faes.de
+// Developer: Guenter Faes, eigennet@faes.de
 // GitHub: https://github.com/SuprenumDE/Dense_NN
 // Lizenz: MIT (also for all self-developed included h and cpp files)
-// Version 0.1.10, 25.09.2025
+// Version 0.1.20, 14.11.2025
 // Eigen-Version: 3.4.0
 // C-Version: ISO-Standard C++20
 // --------------------------------------
@@ -23,6 +23,7 @@
 #include "config_utils.h"           // Konfigurationsmanagement
 #include "diagnostics_utils.h"      // Diagnosefunktionen für das Training
 #include "metrics_utils.h"          // Metriken für Klassifikation/Regression (Hilfsfunktionen)
+#include "optimizer.h"              // Optimizer-Funktionen
 #include "resource.h"               // Icon und & 
 
 
@@ -40,7 +41,7 @@
 
 using namespace std;
 
-// Argumente parsen und in Config-Objekt speichern:
+// Parse arguments and store in config object:
 std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
     try {
         Config config;
@@ -68,7 +69,7 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
                 return std::nullopt;
             }
 
-            // Aktivierungsfunktionen parsen
+            // Parse activation functions:
             std::stringstream ss_act(result["activations"].as<std::string>());
             std::string act;
             while (std::getline(ss_act, act, ',')) {
@@ -79,7 +80,24 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
                 return std::nullopt;
             }
 
-            // Weitere Parameter
+            // Optimizer Gradient Descent Method Parse:
+            std::string opt_str = result["optimizer"].as<std::string>();
+            try {
+                config.optimizer_type = parse_optimizer(opt_str);
+            }
+            catch (const std::invalid_argument& e) {
+                std::cerr << "Error: Unknown optimizer \"" << opt_str
+                    << "\", default value (SGD) is used.\n";
+                config.optimizer_type = OptimizerType::SGD;
+            }
+            // Optimizer parameters:
+            config.optimizer_params.type = config.optimizer_type;
+            config.optimizer_params.beta1 = result["beta1"].as<double>();
+            config.optimizer_params.beta2 = result["beta2"].as<double>();
+            config.optimizer_params.epsilon = result["epsilon"].as<double>();
+            config.optimizer_params.rho = result["rho"].as<double>();
+
+            // Further Parameters:
             config.weights_file = result["weights"].as<std::string>();
             config.epochs = result["epochs"].as<int>();
             config.n_TrainingsSample = result["samples"].as<int>();
@@ -89,7 +107,7 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
             config.lr_mode = result["lr_mode"].as<std::string>();
             config.min_delta = result["min_delta"].as<double>();
 
-            // Verlustfunktion parsen
+            // Parse Loss Function:
             std::string loss = result["loss"].as<std::string>();
             if (loss == "CROSS_ENTROPY")
                 config.loss_type = LossType::CROSS_ENTROPY;
@@ -102,7 +120,7 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
                 config.loss_type = LossType::CROSS_ENTROPY;
             }
 
-            // Initialisierungsmethode parsen
+            // Parse initialization method:
             std::string init = result["init"].as<std::string>();
             if (init == "HE") config.W_init_Methode = InitType::HE;
             else if (init == "XAVIER") config.W_init_Methode = InitType::XAVIER;
@@ -116,7 +134,7 @@ std::optional<Config> parse_arguments(const cxxopts::ParseResult& result) {
                 config.W_init_Methode = InitType::HE;
             }
 
-            // Gültigkeitsprüfungen
+            // Check mini batch size:
             if (config.batch_size != 32 && config.batch_size != 64 && config.batch_size != 128) {
                 std::cerr << "Error: Invalid batch size: " << config.batch_size << ". Only 32, 64, or 128 are allowed.\n";
                 return std::nullopt;
@@ -161,14 +179,14 @@ void show_help(const cxxopts::Options& options) {
 /_______  /|___|  /\___  >     |____|_  /\___  >__|  
         \/      \/     \/             \/     \/      
 
-EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025, License: MIT
+EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.20, 14.11.2025, License: MIT
 )";
     std::cout << "\nUsage:\n";
     std::cout << "  ./Dense_NN [Optionen]\n\n";
     std::cout << "Available options:\n";
     std::cout << options.help({ "" }) << "\n";
     std::cout << "Example:\n";
-    std::cout << "  ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --dataset=mnist.csv\n\n";
+    std::cout << "  ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --optimizer=SGD --dataset=mnist.csv\n\n";
     std::cout << "Further information:\n";
     std::cout << "  Guenter Faes, Mail: eigennet@faes.de\n";
     std::cout << "  YouTube: https://www.youtube.com/@r-statistik\n";
@@ -184,18 +202,18 @@ EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025, Lice
 int main(int argc, char* argv[]) {
 
     // ----------------- Initialisierung -----------------
-	vector<size_t> architecture;                    // Layergrößen, z. B. 784,128,64,10
-	vector<std::string> activations;                // Aktivierungsfunktionen, z. B. relu,relu,tanh,softmax
-    int modus = 1;                                  // Verabeitungsmodus : 1=Trainieren, 2=Testen, 3=Beenden
-    int epochs = 0;                                 // Trainingsepoche, 0 = Default
-    int n_TrainingsSample = 1000;                   // Um nur ein paar Trainingsdaten zu laden
-    size_t batch_size = 64;                         // Minibatch-Größe, Standardwert
-    float val_split = 0.2f;                         // Anteil der Daten für Validierung (z. B. 0.2)
-    double learning_rate = 0.01;                    // Lernrate, Standardwert
-    double dynamische_Lr = 0;                       // Nimmt die aktuelle dynamische Lernrate auf
-    string lr_mode = {};                            // Dynamische Lernrate, z.B. "decay" oder "step"
-    InitType W_init_Methode = InitType::HE;         // Initialisierungsmethode für die Gewichte, weights_ini.h
-    LossType loss_type = LossType::CROSS_ENTROPY;   // Verlustfunktion, z.B. "CROSS_ENTROPY", "MAE" oder "MSE"
+	vector<size_t> architecture;                        // Layergrößen, z. B. 784,128,64,10
+	vector<std::string> activations;                    // Aktivierungsfunktionen, z. B. relu,relu,tanh,softmax
+    int modus = 1;                                      // Verabeitungsmodus : 1=Trainieren, 2=Testen, 3=Beenden
+    int epochs = 0;                                     // Trainingsepoche, 0 = Default
+    int n_TrainingsSample = 1000;                       // Um nur ein paar Trainingsdaten zu laden
+    size_t batch_size = 64;                             // Minibatch-Größe, Standardwert
+    float val_split = 0.2f;                             // Anteil der Daten für Validierung (z. B. 0.2)
+    double learning_rate = 0.01;                        // Lernrate, Standardwert
+    string lr_mode = {};                                // Dynamische Lernrate, z.B. "decay" oder "step"
+    InitType W_init_Methode = InitType::HE;             // Initialisierungsmethode für die Gewichte, weights_ini.h
+    LossType loss_type = LossType::CROSS_ENTROPY;       // Verlustfunktion, z.B. "CROSS_ENTROPY", "MAE" oder "MSE"
+    OptimizerType optimizer_type = OptimizerType::SGD;  // Optimizer: "SGD", "RMSProp", "Adam"
 
     // Kontrollvariablen
     double correct_predictions = 0;
@@ -204,27 +222,27 @@ int main(int argc, char* argv[]) {
     double val_loss = 0.0;
     double val_correct = 0;
     double val_accuracy = 0.0;
-	double tolerance = 0.01;                        // Toleranz für die Genauigkeit, Vorbelegung 0.01
+	double tolerance = 0.01;                            // Toleranz für die Genauigkeit, Vorbelegung 0.01
 
     //Variablen für frühes Stoppen des Trainings:
-	double best_val_loss = 0.0;                 //  Beste Validierungs-Verlust
-    int patience_counter = 0;                   // Zähler für Geduld
-    const int patience_limit = 5;               // z. B. 5 Epochen Geduld
-    double min_delta = 1e-4;                    // minimale Verbesserung
+	double best_val_loss = 0.0;                         //  Beste Validierungs-Verlust
+    int patience_counter = 0;                           // Zähler für Geduld
+    const int patience_limit = 5;                       // z. B. 5 Epochen Geduld
+    double min_delta = 1e-4;                            // minimale Verbesserung
 
     // Dateihandling:
-    string weights_file = "weights.txt";       // Dateiname für Gewichte und Bias
-    string dataset_file = "mnist.csv";         // Standard-MNIST-Datensatz
+    string weights_file = "weights.txt";                // Dateiname für Gewichte und Bias
+    string dataset_file = "mnist.csv";                  // Standard-MNIST-Datensatz
 
 	// Datenstrukturen Dataset-Utils
-	DatasetInfo dataset; 				       // Struktur für Datensatz-Informationen
+	DatasetInfo dataset; 				                // Struktur für Datensatz-Informationen
 
 	// Neuronale Netz-Parameter: 
-	vector<Eigen::MatrixXd> weights;           // Gewichte der Schichten
-	vector<Eigen::VectorXd> biases;            // Biases der Schichten
-	vector<Eigen::VectorXd> a_values;          // Aktivierungswerte der Schichten
-	vector<Eigen::VectorXd> z_values;          // Z-Werte der Schichten (Voraktivierung)
-	long long total_parameters = 0;            // Gesamtanzahl der Parameter im Netz
+	vector<Eigen::MatrixXd> weights;                    // Gewichte der Schichten
+	vector<Eigen::VectorXd> biases;                     // Biases der Schichten
+	vector<Eigen::VectorXd> a_values;                   // Aktivierungswerte der Schichten
+	vector<Eigen::VectorXd> z_values;                   // Z-Werte der Schichten (Voraktivierung)
+	long long total_parameters = 0;                     // Gesamtanzahl der Parameter im Netz
 
     // -------------------------------------------------------
 
@@ -246,6 +264,13 @@ int main(int argc, char* argv[]) {
             ("r,lr_mode", "Learning rate mode (e.g., decay, step)", cxxopts::value<std::string>()->default_value(""))
             ("i,init", "Initialization method (HE, XAVIER, ...)", cxxopts::value<std::string>()->default_value("HE"))
             ("d,min_delta", "Minimal improvement for early training stop", cxxopts::value<double>()->default_value("0.0001"))
+
+            ("o,optimizer", "Optimizer: SGD, RMSProp, Adam", cxxopts::value<std::string>()->default_value("SGD"))
+            ("beta1", "Adam: first moment decay (beta1)", cxxopts::value<double>()->default_value("0.9"))
+            ("beta2", "Adam: second moment decay (beta2)", cxxopts::value<double>()->default_value("0.999"))
+            ("eps,epsilon", "Stability term (Adam/RMSProp)", cxxopts::value<double>()->default_value("1e-8"))
+            ("rho", "RMSProp: Decay-Rate for squared gradients", cxxopts::value<double>()->default_value("0.9"))
+
 			("p,print_config", "Outputs the current configuration")
             ("h,help", "Displays help");
         
@@ -273,7 +298,7 @@ int main(int argc, char* argv[]) {
 
     if (config.modus == 1) {
 
-		cout << "EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025\n";
+		cout << "EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.20, 14.11.2025\n";
         cout << "Training mode activated.\n\n";
         
         // ---------- Trainings-Modus ---------------------
@@ -287,11 +312,13 @@ int main(int argc, char* argv[]) {
         n_TrainingsSample = config.n_TrainingsSample;
         batch_size = config.batch_size;
         val_split = config.val_split;
-        learning_rate = config.learning_rate;
         lr_mode = config.lr_mode;
         W_init_Methode = config.W_init_Methode;
         min_delta = config.min_delta;
         loss_type = config.loss_type;
+        optimizer_type = config.optimizer_type;
+
+
 
         // Daten laden und Dimensionen für Input- und Output-Layer automatisch bestimmen:
         DatasetInfo dataset = load_dataset_info(dataset_file, n_TrainingsSample);
@@ -362,7 +389,7 @@ int main(int argc, char* argv[]) {
                 weights.push_back(W);
 
                 // This is where the biases are initialized:
-                Eigen::VectorXd b(output_dim);                     // Bias-Vektor für die Schichten
+                Eigen::VectorXd b(output_dim);                     // Bias vector for the layers
                 for (int i = 0; i < output_dim; ++i)
                     b(i) = bias_dist(gen);
 
@@ -426,30 +453,48 @@ int main(int argc, char* argv[]) {
 			}
 		}
        
+        // Initializations for the optimizer methods (RMSProp / Adam / ...):
+        OptimizerState state;
+        state.t = 0;
+        state.M_W.resize(weights.size());
+        state.V_W.resize(weights.size());
+        state.M_b.resize(biases.size());
+        state.V_b.resize(biases.size());
+        state.G_W.resize(weights.size());
+        state.G_b.resize(biases.size());
+
+        for (size_t l = 0; l < weights.size(); ++l) {
+            state.M_W[l] = Eigen::MatrixXd::Zero(weights[l].rows(), weights[l].cols());
+            state.V_W[l] = Eigen::MatrixXd::Zero(weights[l].rows(), weights[l].cols());
+            state.M_b[l] = Eigen::VectorXd::Zero(biases[l].size());
+            state.V_b[l] = Eigen::VectorXd::Zero(biases[l].size());
+            state.G_W[l] = Eigen::MatrixXd::Zero(weights[l].rows(), weights[l].cols());
+            state.G_b[l] = Eigen::VectorXd::Zero(biases[l].size());
+        }
 
 
-        // Start training:
+        // ------------------ Start training ------------------------------------
 
-        // Zeitmessung für das gesamte Training:
+        // Time measurement for the entire training session:
         auto training_start_time = chrono::high_resolution_clock::now();
 
-        // Logbuch anlegen:
+        // Create logbook:
 		ofstream log("training_log.csv");
         if (!log.is_open()) {
             cerr << "Error: Log file could not be opened." << endl;
             return 1;
 		}
-		// Netzparameter als JSON-Datei speichern:
+		// Save network parameters as a JSON file:
         save_config_as_json(config, "nn_parameter.json");
 
         
-		// Logbuch-Header schreiben:
+		// Write logbook header:
         write_log_header(log);
 
-        // Trainingsschleife:
+        // Training Loop:
         for (int epoch = 0; epoch < epochs; ++epoch) {
 
-            // Zeitmessung für die Epoche:
+            // Time measurement for the epoch:
             auto start_time = chrono::high_resolution_clock::now();
 
             epoch_loss = 0.0;
@@ -463,7 +508,7 @@ int main(int argc, char* argv[]) {
 
                 size_t end = std::min(i + batch_size, train_inputs.size());
 
-				// Initialisierung der Aktivierungen und Zwischenergebnisse:
+				// Initialization of activations and intermediate results:
                 vector<Eigen::MatrixXd> dw_acc(weights.size());
                 vector<Eigen::VectorXd> db_acc(biases.size());
                 for (size_t l = 0; l < weights.size(); ++l) {
@@ -472,11 +517,11 @@ int main(int argc, char* argv[]) {
                 }
 
 
-                // Schleife über das aktuelle Minibatch:
+                // Loop over MINIBATCH:
 				for (size_t j = i; j < end; ++j) { 
 
-                    // Vorwärts:
-                    // Temporäre Variablen für die Batch-Verarbeitung löschen (Speicher freigeben):
+                    // Forward:
+                    // Delete temporary variables for batch processing (free up memory):
                     a_values.clear();
                     z_values.clear();
 
@@ -494,75 +539,78 @@ int main(int argc, char* argv[]) {
                     }
 
 
-                    // Rückwärts:
-					vector<Eigen::VectorXd> deltas(weights.size()); // Deltas für Backpropagation
+                    // Backwards:
+					vector<Eigen::VectorXd> deltas(weights.size());                          // Deltas for Backpropagation
 
-                    // Delta-Berechnung:
+                    // Delta Calculation:
                     Eigen::VectorXd prediction = a_values.back();
-                    Eigen::VectorXd target = train_labels_enc[j];                            // Bestimmen des Zielwert
-					Eigen::VectorXd dz = loss_fn->gradient(prediction, target);              // Gradient des Verlusts
+                    Eigen::VectorXd target = train_labels_enc[j];                            // Determining the target value
+					Eigen::VectorXd dz = loss_fn->gradient(prediction, target);              // Loss gradient
                     deltas.back() = dz;
 
-                    // Diagnose: Gradient der letzten Schicht
+                    // Diagnosis: Gradient of the last layer
                     // std::cout << "[Diagnose] Delta Output Layer-Norm: " << dz.norm() << "\n";
 
-					// Backpropagation durch die Schichten:
+					// Backpropagation through the layers:
                     for (int l = static_cast<int>(weights.size()) - 2; l >= 0; --l) {
 						Eigen::VectorXd da = weights[l + 1].transpose() * deltas[l + 1];    
                         auto act = Activation::get(activations[l]);
-						Eigen::VectorXd dz = da.array() * act->derivative(z_values[l]).array(); // Ableitung der Aktivierungsfunktion
+						Eigen::VectorXd dz = da.array() * act->derivative(z_values[l]).array(); // Derivation of the activation function
                         deltas[l] = dz;
 
-					} // Ende Backpropagation durch die Schichten
+					} // End of Backpropagation through the layers
 
-                    // Diagnose: Gradientennormen aller Schichten
+                    // Diagnosis: Gradient norms of all layers
                     // show_gradient_norms(deltas);
 
  
-					// Gradientenakkumulation:
+					// Gradient accumulation:
                     for (size_t l = 0; l < weights.size(); ++l) {
-						dw_acc[l] += deltas[l] * a_values[l].transpose(); // Gradienten für Gewichte
-						db_acc[l] += deltas[l];                           // Gradienten für Biases
+						dw_acc[l] += deltas[l] * a_values[l].transpose(); // Gradients for weights
+						db_acc[l] += deltas[l];                           // Biases
                     }
 
 
-                    // Verlust & Accuracy
+                    // Loss & Accuracy:
                     epoch_loss += loss_fn->compute(prediction, target);
 
 
-					// Korrektklassifizierung zählen:
+					// Counting correct classifications:
                     if (dataset.is_classification) {
-                        // Klassifikation: index der größten Wahrscheinlichkeit
+                        // Classification: index of highest probability
                         int y_true = train_labels_int[j];
-                        if (argmax(prediction) == y_true)
-                            ++correct_predictions;
+                        if (argmax(prediction) == y_true) ++correct_predictions;  
                     }
                     else {
-                        // Regression: Abweichung gegen das 1×1-Label in train_labels_enc/train_labels_float
-						// Hier wird angenommen, dass train_labels_float ein 1D-Vektor ist.
+                        // Regression: Deviation from the 1×1 label in train_labels_enc/train_labels_float
+						// Here, it is assumed that train_labels_float is a 1D vector.
                         double y_true = train_labels_float[j];
-                        if (std::abs(prediction(0) - y_true) < tolerance)
-                            ++correct_predictions;
+                        if (std::abs(prediction(0) - y_true) < tolerance) ++correct_predictions;        
                     }
 
 
-				} // Ende Trainingsdaten-Schleife
+				} // End of MINIBATCH training data loop
 
-
-                // Lernrate anpassen
-                double adjusted_lr = adjust_learning_rate(lr_mode, learning_rate, epoch);
-				dynamische_Lr = adjusted_lr; // Aktuelle dynamische Lernrate speichern  
-
-                // Update mit Mittelwert über Batch
                 for (size_t l = 0; l < weights.size(); ++l) {
-                    weights[l] -= adjusted_lr * (dw_acc[l] / batch_size);
-                    biases[l] -= adjusted_lr * (db_acc[l] / batch_size);
+                    dw_acc[l] /= static_cast<double>(end - i); // Average value over batch
+                    db_acc[l] /= static_cast<double>(end - i);
                 }
 
+                // Adjust learning rate:
+                config.learning_rate = adjust_learning_rate(lr_mode, config.learning_rate, epoch);
 
-			} // Ende der Netzschleife
+                // Optimizer-Update:
+                apply_update(weights, biases,
+                    dw_acc, db_acc,
+                    state,
+                    config.optimizer_params,
+                    config.learning_rate);
 
-			// Validierungsverlust und -genauigkeit berechnen:
+                 
+
+			} // End of batch training loop
+
+			// Calculate validation loss and accuracy:
             for (size_t i = 0; i < val_inputs.size(); ++i) {
 
                 Eigen::VectorXd a = val_inputs[i];
@@ -575,10 +623,10 @@ int main(int argc, char* argv[]) {
 
                 Eigen::VectorXd target = val_labels_enc[i];
 
-				// Validierungsverlust berechnen:
+				// Calculate validation loss:
                 val_loss += loss_fn->compute(a, target);
 
-				// Korrektklassifizierung zählen:
+				// Counting correct classifications:
                 if (dataset.is_classification) {
                     int y_true = val_labels_int[i];
                     if (argmax(a) == y_true) ++val_correct;
@@ -590,14 +638,14 @@ int main(int argc, char* argv[]) {
 
             }
 
-			// Genauigkeit berechnen:
+			// Calculate accuracy (Normalize metrics):
             accuracy = correct_predictions / static_cast<double>(train_inputs.size());
             val_accuracy = val_correct / static_cast<double>(val_inputs.size());
             epoch_loss /= static_cast<double>(train_inputs.size());
             val_loss /= static_cast<double>(val_inputs.size());
 
 
-			// Prüfung zum frühen Trainingsstopp (Unterschreiten von min_delta):
+			// Check for early training termination (falling below min_delta):
             if (abs(best_val_loss - val_loss) > min_delta) {
                 best_val_loss = val_loss;
                 patience_counter = 0;
@@ -611,12 +659,12 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            // Zeitmessung für die Epoche beenden:
+            // End time measurement for the epoch:
             auto end_time = chrono::high_resolution_clock::now(); // Zeit stoppen
             chrono::duration<double> epoch_duration = end_time - start_time;
 
             // Immer ins Log schreiben:
-            log_epoch(log, epoch + 1, epoch_loss, accuracy, val_loss, val_accuracy, epoch_duration.count(), dynamische_Lr);
+            log_epoch(log, epoch + 1, epoch_loss, accuracy, val_loss, val_accuracy, epoch_duration.count(), config.learning_rate);
 
 
             // Nur alle 10 Epochen anzeigen:
@@ -631,7 +679,9 @@ int main(int argc, char* argv[]) {
             }
 
             
-		} // Ende der Trainingsschleife
+		} // End of epoch training loop
+
+        // ---------------  End of training ------------------------------
 
         // Zeitmessung für das gesamte Training beenden:
         auto training_end_time = chrono::high_resolution_clock::now(); // Zeit stoppen
@@ -644,7 +694,7 @@ int main(int argc, char* argv[]) {
         save_all_weights_biases_csv(weights, biases);
 
         // Info-Ausgabe über den letzten Status von ...
-        cout << "Used / last (if dynamic) learning rate: " << dynamische_Lr << endl;
+        cout << "Used / last (if dynamic) learning rate: " << config.learning_rate << endl;
 		cout << "Training time: " << training_duration.count() << " seconds" << endl;
 
 
@@ -735,7 +785,7 @@ int main(int argc, char* argv[]) {
         std::cout << "The program is terminated. Thank you for using EIGENnet!\n";
         std::cout << "For further information, please visit:\n";
         std::cout << "  YouTube: https://www.youtube.com/@r-statistik\n";
-        std::cout << "  GitHub: ";
+        std::cout << "  GitHub: https://github.com/SuprenumDE/Dense_NN";
 		std::cout << "Program finished." << endl; 
 
     }

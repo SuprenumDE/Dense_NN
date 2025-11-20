@@ -6,8 +6,9 @@
 
 #include <string>
 #include <vector>
-#include "weights_ini.h"           // Netzgewichtsinitalisierung
-#include "loss_functions.h"        // Loss-Funktionstypen
+#include "weights_ini.h"            // Netzgewichtsinitalisierung
+#include "loss_functions.h"         // Loss-Funktionstypen
+#include "optimizer.h"              // Optimizer Functions
 
 enum class ModelType { CLASSIFICATION, REGRESSION };
 
@@ -26,6 +27,10 @@ struct Config {
     InitType W_init_Methode = InitType::HE;
     double min_delta = 0.0001;
     LossType loss_type = LossType::MAE;
+
+    OptimizerType optimizer_type = OptimizerType::SGD;
+    OptimizerParams optimizer_params;   // Complete optimizer parameter structure
+
     ModelType model_type = ModelType::CLASSIFICATION;
 };
 

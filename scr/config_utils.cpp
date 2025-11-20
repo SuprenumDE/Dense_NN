@@ -5,7 +5,7 @@
 // Entwickler: Guenter Faes, eigennet@faes.de
 // GitHub: https://github.com/SuprenumDE/Dense_NN
 //
-// Version 0.0.2, 25.09.2025
+// Version 0.0.3, 13.11.2025
 // --------------------------------------
 
 
@@ -31,6 +31,7 @@ void save_config_as_json(const Config& config, const std::string& filename) {
         {"learning_rate", config.learning_rate},
         {"lr_mode", config.lr_mode},
         {"W_init_Methode", to_string(config.W_init_Methode)},
+        {"Optimizer", opti_type_to_string(config.optimizer_type)},
         {"min_delta", config.min_delta},
         {"model_type", model_type_to_string(config.model_type)}
     };
@@ -58,6 +59,7 @@ bool load_config_from_json(Config& config, const std::string& filename) {
     config.val_split = j["val_split"];
     config.learning_rate = j["learning_rate"];
     config.lr_mode = j["lr_mode"];
+    config.optimizer_type = opti_type_from_string(j["Optimizer"]);
     config.min_delta = j["min_delta"];
     config.model_type = model_type_from_string(j["model_type"]);
 
@@ -94,6 +96,23 @@ std::string model_type_to_string(ModelType type) {
 ModelType model_type_from_string(const std::string& str) {
     if (str == "Klassifikation") return ModelType::CLASSIFICATION;
     else if (str == "Regression") return ModelType::REGRESSION;
-    else throw std::invalid_argument("Unbekannter Modelltyp: " + str);
+    else throw std::invalid_argument("Unknown model type: " + str);
+}
+
+// Optimizer:
+std::string opti_type_to_string(OptimizerType opt) {
+    switch (opt) {
+    case OptimizerType::SGD:     return "SGD";
+    case OptimizerType::RMSProp: return "RMSProp";
+    case OptimizerType::Adam:    return "Adam";
+    default:                     return "Unknown";
+    }
+}
+
+OptimizerType opti_type_from_string(const std::string& str) {
+    if (str == "SGD") return OptimizerType::SGD;
+    else if (str == "RMSProp") return OptimizerType::RMSProp;
+    else if (str == "Adam") return OptimizerType::Adam;
+    else throw std::invalid_argument("Unknown optimizer type: " + str);
 }
 

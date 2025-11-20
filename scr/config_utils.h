@@ -18,6 +18,10 @@ std::string model_type_to_string(ModelType type);
 
 ModelType model_type_from_string(const std::string& str);
 
+std::string opti_type_to_string(OptimizerType opt);
+
+OptimizerType opti_type_from_string(const std::string& str);
+
 
 #endif // CONFIG_UTILS_H
 
