@@ -99,26 +99,33 @@ data_size <- dim(split_df) # Only for labeling!
 TrainingDataSet <- "mnist_split_1.csv"
 architecture <- "784,128,64,10"
 ActivationFunctions <- "relu,relu,softmax"
+Optimizer <- "RMSProp"  # or RMSProp/Adam
+Opti_RMSProp_rho = "0.9"
+Opti_Adam_b1 = "0.9"
+Opti_Adam_b2 = "0.999"
+Loss <- "CROSS_ENTROPY"
 epochs <- "150"
 n_TrainingSample <- "-1"
 BatchSize <- "64"
 LearningRate <- "0.001"
 LR_dynamic <- "decay"
+MinDelta <- "0.001"
 WeightInitialization <- "HE"
 
 system2("Dense_NN.exe",
         args = c(
           "--mode=1", 
           paste0("--architecture=", architecture), 
-          paste0("--activations=", ActivationFunctions), 
-          "--loss=CROSS_ENTROPY", 
+          paste0("--activations=", ActivationFunctions),
+          paste0("--optimizer=", Optimizer),
+          paste0("--loss=", Loss),  
           paste0("--dataset=", TrainingDataSet), 
           paste0("--epochs=", epochs), 
           paste0("--samples=", n_TrainingSample),
           paste0("--batch=", BatchSize), 
           paste0("--learning_rate=", LearningRate),
           paste0("--lr_mode=", LR_dynamic),
-          "--min_delta=0.001", 
+          paste0("--min_delta=", MinDelta), 
           paste0("--init=", WeightInitialization)
         ),
         stdout = "",
@@ -152,21 +159,21 @@ for (i in start:end) {
           args = c(
             "--mode=1", 
             paste0("--architecture=", architecture), 
-            paste0("--activations=", ActivationFunctions), 
-            "--loss=CROSS_ENTROPY", 
+            paste0("--activations=", ActivationFunctions),
+            paste0("--optimizer=", Optimizer),
+            paste0("--loss=", Loss),  
             paste0("--dataset=", TrainingDataSet), 
             paste0("--epochs=", epochs), 
             paste0("--samples=", n_TrainingSample),
             paste0("--batch=", BatchSize), 
             paste0("--learning_rate=", LearningRate),
             paste0("--lr_mode=", LR_dynamic),
-            "--min_delta=0.001", 
+            paste0("--min_delta=", MinDelta), 
             paste0("--init=", WeightInitialization)
           ),
           stdout = "",
           stderr = ""
   )
-
 
   # ----------------------------- Output Graphic ---------------------------
 

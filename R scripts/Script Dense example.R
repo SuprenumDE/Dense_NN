@@ -11,29 +11,29 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.8, 25.09.2025
+## Version 0.0.9, 17.11.2025
 ## R-Version: 4.5.1  
 ## OS Windows 11
 ##
 ################################################################################
 # 
-#   _________.__                 __________        __   
+# _________.__                 __________        __   
 # /   _____/|  |__   ____      \______   \ _____/  |_ 
 # \_____  \ |  |  \_/ __ \      |       _// __ \   __\
-# /        \|   Y  \  ___/      |    |   \  ___/|  |  
-# /_______  /|___|  /\___  >     |____|_  /\___  >__|  
-# \/      \/     \/             \/     \/      
-  
-# EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.10, 25.09.2025, License: MIT
-
+#  /        \|   Y  \  ___/     |    |   \  ___/|  |  
+# /_______  /|___|  /\___  >    |____|_  /\___  >__|  
+#         \/      \/     \/            \/     \/      
+#  
+#  EIGENnet - Neural networks in C++ with Eigen,   Version 0.1.20, 14.11.2025, License: MIT
+#
 # Usage:
-#  ./Dense_NN [Optionen]
-
+#   ./Dense_NN [Optionen]
+#
 # Available options:
 #   Train or test a neural network
 # Usage:
 #   Dense_NN [OPTION...]
-
+#
 # -m, --mode arg           Mode: 1=Train, 2=Test, 3=Exit (default: 1)
 # -f, --dataset arg        Data set file (e.g., filename.csv)
 # -c, --architecture arg   Layer sizes separated by commas, e.g. 784,128,64,10
@@ -41,33 +41,37 @@
 #                          commas, e.g., relu, relu, tanh, softmax
 # -w, --weights arg        Weights file (e.g., weights.txt) (default: weights.txt)
 # -e, --epochs arg         Number of epochs (default: 100)
-# -z, --loss arg           Loss function: CROSS_ENTROPY, MAE, or MSE 
-#                          (default: CROSS_ENTROPY)
+# -z, --loss arg           Loss function: CROSS_ENTROPY, MAE, or MSE (default: CROSS_ENTROPY)
 # -s, --samples arg        Number of training samples (default: 1000)
 # -b, --batch arg          Minibatch size (32, 64, or 128) (default: 64)
-# -v, --val arg            Proportion of data for validation (e.g., 0.2) 
-#                          (default: 0.2)
+# -v, --val arg            Proportion of data for validation (e.g., 0.2) (default: 0.2) 
 # -l, --learning_rate arg  Learning rate (default: 0.01)
 # -r, --lr_mode arg        Learning rate mode (e.g., decay, step) (default: "")
-# -i, --init arg           Initialization method (HE, XAVIER, ...) 
-#                          (default: HE)
-# -d, --min_delta arg      Minimal improvement for early training stop 
-#                          (default: 0.0001)
+# -i, --init arg           Initialization method (HE, XAVIER, ..., ITERATIVE) (default: HE)
+# -d, --min_delta arg      Minimal improvement for early training stop (default: 0.0001)
+# -o, --optimizer arg      Optimizer: SGD, RMSProp, Adam (default: SGD)
+#     --beta1 arg          Adam: first moment decay (beta1) (default: 0.9)
+#     --beta2 arg          Adam: second moment decay (beta2) (default: 0.999)
+#     --eps arg            Stability term (Adam/RMSProp) (default: 1e-8)
+#     --rho arg            RMSProp: Decay rate for squared gradients (default: 0.9)
 # -p, --print_config       Outputs the current configuration
 # -h, --help               Displays help
-
+#
 # Example:
-#    ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --dataset=mnist.csv
-
+#   ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --optimizer=SGD --dataset=mnist.csv
+#
 # Further information:
-#    Guenter Faes, Mail: eigennet@faes.de
-#    YouTube: https://www.youtube.com/@r-statistik
-#   GitHub:  https://github.com/SuprenumDE/EigenNET
+#   Guenter Faes, Mail: eigennet@faes.de
+# YouTube: https://www.youtube.com/@r-statistik
+# GitHub:  https://github.com/SuprenumDE/EigenNET
 # ################################################################################
 
 system("./Dense_NN --help")
 
 ################################################################################
+
+### Clear all variables:
+rm(list = ls())
 
 ### Required packages:
 library(ggplot2)      # for heatmap
@@ -75,18 +79,19 @@ library(visNetwork)   # To illustrate the neural connections
 library(rsample)      # to create a training and test data set
 library(AmesHousing)  # Dataset ames (Alternative to Boston Housing)
 
+### Functions:
+source("F:/R-Projekte/Calling_C_NN/scale_features.R")  # scaling function
+
+# The path to my R working directory (the bin directory containing Dense_NN.exe):
+setwd("F:/R-Projekte/Calling_C_NN/bin")
+
+
 ################################################################################
 #
 #                       Classification Model
 #
 #
 ################################################################################
-
-### Clear all variables:
-rm(list = ls())
-
-### Functions:
-source("F:/R-Projekte/Calling_C_NN/scale_features.R")  # scaling function
 
 ############################ Prepare data ##########################
 #
@@ -132,43 +137,45 @@ cat("File successfully exported as", output_file, "\n")
 
 ######################## Perform training ##############################
 
-### Doing a little “labeling”:
-Trainingsdatensatz <- "neu_mnist_train.csv"
-Architektur <- c(784,128,64,10)
-Aktivierungsfunktionen <- c("relu,relu,softmax")
-Epochen <- 150
-n_Trainingssample <- data_size[1] # Just an informational text! You can also write “complete data set”!
-Batch_Size <- 128
-Lernrate <- 0.01
-Lr_dynamisch <- "decay"
-Gewichtinitalisierung <- "HE"
-
-# Alternative: res <- system2("Dense_NN.exe",... -> Stores feedback in res
-#              stdout = TRUE  -> in case of problems
-#              stderr = TRUE  -> in case of problems
+### Setting the Dense_NN function parameters:
+TrainingDataSet <- "neu_mnist_train.csv"
+architecture <- "784,128,64,10"
+ActivationFunctions <- "relu,relu,softmax"
+Optimizer <- "SGD"  # or RMSProp/Adam
+Opti_RMSProp_rho = "0.9"
+Opti_Adam_b1 = "0.9"
+Opti_Adam_b2 = "0.999"
+Loss <- "CROSS_ENTROPY"
+epochs <- "150"
+n_TrainingSample <- "-1"
+BatchSize <- "64"
+LearningRate <- "0.001"
+LR_dynamic <- "decay"
+MinDelta <- "0.001"
+WeightInitialization <- "HE"
 
 system2("Dense_NN.exe",
-      args = c(
-       "--mode=1", 
-       "--architecture=784,128,64,10", 
-       "--activations=relu,relu,softmax", 
-       "--loss=CROSS_ENTROPY", 
-       "--dataset=neu_mnist_train.csv", 
-       "--epochs=150", 
-       "--samples=-1",     # complete data set
-       "--batch=128", 
-       "--learning_rate=0.01",
-       "--lr_mode=decay",
-       "--min_delta=0.001", 
-       "--init=HE"
-      ),
-      stdout = "",
-      stderr = ""
+        args = c(
+          "--mode=1",
+          paste0("--architecture=", architecture), 
+          paste0("--activations=", ActivationFunctions), 
+          paste0("--optimizer=", Optimizer),
+          paste0("--loss=", Loss), 
+          paste0("--dataset=", TrainingDataSet), 
+          paste0("--epochs=", epochs), 
+          paste0("--samples=", n_TrainingSample),
+          paste0("--batch=", BatchSize), 
+          paste0("--learning_rate=", LearningRate),
+          paste0("--lr_mode=", LR_dynamic),
+          paste0("--min_delta=", MinDelta), 
+          paste0("--init=", WeightInitialization),
+          "--print_config"
+        ),
+        stdout = "",
+        stderr = ""
 )
-#cat("Exit-Status:", attr(res, "status"), "\n")
-#cat(res, sep = "\n")
 
-#########################################################################
+ #########################################################################
 #
 # To graphically display the training parameters and weight matrices,
 # run the entire R script “Display_Training_Progress.R.”
@@ -196,24 +203,24 @@ system2("Dense_NN.exe",
 #
 #########################################################################
 
-Vorhersage <- read.csv("test_results.csv")
-View(Vorhersage)
+forecast <- read.csv("test_results.csv")
+View(forecast)
 
 # Overall prediction accuracy (VG):
-Mittlere_VG <- mean(Vorhersage$true_label == Vorhersage$predicted_label)
-Mittlere_VG
+average_forecast <- mean(forecast$true_label == forecast$predicted_label)
+average_forecast
 
 
 ### Presentation as a tabular overview:
 # Absolutely:
-Tabelle_VG <- table(Vorhersage$true_label, Vorhersage$predicted_label)
-Tabelle_VG
+tabular_forecast <- table(forecast$true_label, forecast$predicted_label)
+tabular_forecast
 # Relative (%):
-Tabelle_VG_relativ <- prop.table(Tabelle_VG, margin = 1) * 100
-round(Tabelle_VG_relativ, 1)
+tabular_forecast_relative <- prop.table(tabular_forecast, margin = 1) * 100
+round(tabular_forecast_relative, 1)
 # Overall view based on 100:
-Tabelle_VG_gesamt <- prop.table(Tabelle_VG) * 100
-round(Tabelle_VG_gesamt, 2)
+tabular_forecast_total <- prop.table(tabular_forecast) * 100
+round(tabular_forecast_total, 2)
 
 
 ################################################################################
@@ -334,34 +341,40 @@ write.table(na.omit(ames_test), file = output_file_test, sep = ",", row.names = 
 
 ######################## Perform training ##############################
 
-### For overview purposes only:
-Trainingsdatensatz <- output_file_train
-Architektur <- c(63,48,32,16,1)
-Aktivierungsfunktionen <- c("relu,relu,sigmoid,none")
-Epochen <- 150
-n_Trainingssample <- ames_train_size[1]
-Batch_Size <- 32
-Lernrate <- 0.03
-Lr_dynamisch <- ""
-Gewichtinitalisierung <- "XAVIER"
+### Setting the Dense_NN function parameters:
+TrainingDataSet <- output_file_train
+architecture <- "63,48,32,16,1"
+ActivationFunctions <- "relu,relu,sigmoid,none"
+Optimizer <- "SGD"
+Loss <- "MSE"
+epochs <- "150"
+n_TrainingSample <- "-1"
+BatchSize <- "32"
+LearningRate <- "0.03"
+LR_dynamic <- ""
+MinDelta <- "0.001"
+WeightInitialization <- "XAVIER"
 
 system2("Dense_NN.exe",
         args = c(
           "--mode=1", 
-          "--architecture=63,48,32,16,1", 
-          "--activations=relu,relu,sigmoid,none", 
-          "--loss=MSE", 
-          "--dataset=ames_train.csv", 
-          "--epochs=150", 
-          "--samples=-1",     # -1 = complete data set, or maybe just 2000 data records?
-          "--batch=32", 
-          "--learning_rate=0.03",
-          "--min_delta=0.00001", 
-          "--init=XAVIER"
+          paste0("--architecture=", architecture), 
+          paste0("--activations=", ActivationFunctions), 
+          paste0("--optimizer=", Optimizer),
+          paste0("--loss=", Loss), 
+          paste0("--dataset=", TrainingDataSet), 
+          paste0("--epochs=", epochs), 
+          paste0("--samples=", n_TrainingSample),
+          paste0("--batch=", BatchSize), 
+          paste0("--learning_rate=", LearningRate),
+          paste0("--lr_mode=", LR_dynamic),
+          paste0("--min_delta=", MinDelta), 
+          paste0("--init=", WeightInitialization)
         ),
         stdout = "",
         stderr = ""
 )
+
 
 # cat("Exit-Status:", attr(res, "status"), "\n")
 # cat(res, sep = "\n")

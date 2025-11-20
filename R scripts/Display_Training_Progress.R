@@ -12,7 +12,7 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.6, 03.09.2025
+## Version 0.0.7, 17.11.2025
 ## R-Version: 4.5.1  
 ## OS Windows 10/11
 ##
@@ -28,31 +28,32 @@ par(mfrow = c(2,2),  oma = c(5, 0, 4, 0))  # unten, links, oben, rechts)
 plot(log$Epoch, log$Loss, type = "l", col = "darkblue",
      main = "Course of the loss function",
      ylab = "Loss",
-     xlab = "Epochen")
+     xlab = "Epoch")
 
 plot(log$Epoch, log$Val_loss, type = "l", col = "blue",
      main = "Loss function validation process",
      ylab = "Loss",
-     xlab = "Epochen")
+     xlab = "Epoch")
 
 plot(log$Epoch, log$Classification_rate, type = "l", col = "darkgreen",
      main = "Correct Classification",
      ylab = "%",
-     xlab = "Epochen")
+     xlab = "Epoch")
 
 plot(log$Epoch, log$Val_accuracy, type = "l", col ="green",
      main = "Correct classification Validation",
      ylab = "%",
-     xlab = "Epochen")
+     xlab = "Epoch")
 
 # Information about the graphic:
 # Central headline:
-mtext(paste0("Training process for the data set ", Trainingsdatensatz), outer = TRUE, cex = 1.2, line = -1.0)
+mtext(paste0("Training process for the data set ", TrainingDataSet), outer = TRUE, cex = 1.2, line = -1.0)
 # Fußzeile:
-mtext(paste0("Number of training samples: ", n_Trainingssample,
-             ", Learning rate: ", Lernrate,
-             " (", Lr_dynamisch, ")",
-             ", Weight initial.: ", Gewichtinitalisierung),
+mtext(paste0("Number of training samples: ", n_TrainingSample,
+             ", Learning rate: ", LearningRate,
+             " (", LR_dynamic, ")",
+             ", Weight initial.: ", WeightInitialization,
+             ", Optimizer: ", Optimizer),
       side = 1,
       outer = TRUE,
       line = 2,

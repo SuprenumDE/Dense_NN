@@ -28,22 +28,22 @@ display_iterativ_training_progress <- function(training_log_file) {
   plot(log$Epoch, log$Loss, type = "l", col = "darkblue",
        main = "Course of the loss function",
        ylab = "Loss",
-       xlab = "Epochs")
+       xlab = "Epoch")
   
   plot(log$Epoch, log$Val_loss, type = "l", col = "blue",
        main = "Loss function validation process",
        ylab = "Loss",
-       xlab = "Epochs")
+       xlab = "Epoch")
   
   plot(log$Epoch, log$Classification_rate, type = "l", col = "darkgreen",
        main = "Correct Classification",
        ylab = "%",
-       xlab = "Epochs")
+       xlab = "Epoch")
   
   plot(log$Epoch, log$Val_accuracy, type = "l", col ="green",
        main = "Correct classification Validation",
        ylab = "%",
-       xlab = "Epochs")
+       xlab = "Epoch")
   
   # Information about the graphic:
   # Central headline:
