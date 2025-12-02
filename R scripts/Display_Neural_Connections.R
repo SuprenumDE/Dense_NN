@@ -14,12 +14,15 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.2, 21.10.2025
+## Version 0.0.3, 30.11.2025
 ## R-Version: 4.5.1  
 ## OS Windows 11
 ##
 ################################################################################
 
+### Required packages:
+library(ggplot2)
+library(visNetwork)   # To illustrate the neural connections
 
 ### Representation of neural connections:
 

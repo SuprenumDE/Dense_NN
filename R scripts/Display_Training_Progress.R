@@ -12,18 +12,21 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.7, 17.11.2025
-## R-Version: 4.5.1  
+## Version 0.0.8, 30.11.2025
+## R-Version: 4.5.2  
 ## OS Windows 10/11
 ##
 ################################################################################
+
+### Required packages:
+library(ggplot2)      # for heatmap
 
 # Read log file:
 log <- read.csv("training_log.csv", skip = 1)
 
 # ----------------------------- Output Graphic ---------------------------
 
-par(mfrow = c(2,2),  oma = c(5, 0, 4, 0))  # unten, links, oben, rechts)
+par(mfrow = c(2,2), oma = c(5, 0, 3, 0), mar=c(5,4,4,2))
 
 plot(log$Epoch, log$Loss, type = "l", col = "darkblue",
      main = "Course of the loss function",

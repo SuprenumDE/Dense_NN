@@ -11,7 +11,7 @@
 ## GitHub: https://github.com/SuprenumDE/Dense_NN
 ##
 ## Günter Faes
-## Version 0.0.9, 17.11.2025
+## Version 0.0.10, 30.11.2025
 ## R-Version: 4.5.1  
 ## OS Windows 11
 ##
@@ -61,7 +61,7 @@
 #   ./Dense_NN --architecture=784,128,64,10 --activations=relu,relu,softmax --epochs=100 --lr=0.01 --optimizer=SGD --dataset=mnist.csv
 #
 # Further information:
-#   Guenter Faes, Mail: eigennet@faes.de
+# Guenter Faes, Mail: eigennet@faes.de
 # YouTube: https://www.youtube.com/@r-statistik
 # GitHub:  https://github.com/SuprenumDE/EigenNET
 # ################################################################################
@@ -73,9 +73,6 @@ system("./Dense_NN --help")
 ### Clear all variables:
 rm(list = ls())
 
-### Required packages:
-library(ggplot2)      # for heatmap
-library(visNetwork)   # To illustrate the neural connections
 library(rsample)      # to create a training and test data set
 library(AmesHousing)  # Dataset ames (Alternative to Boston Housing)
 
@@ -141,10 +138,10 @@ cat("File successfully exported as", output_file, "\n")
 TrainingDataSet <- "neu_mnist_train.csv"
 architecture <- "784,128,64,10"
 ActivationFunctions <- "relu,relu,softmax"
-Optimizer <- "SGD"  # or RMSProp/Adam
-Opti_RMSProp_rho = "0.9"
-Opti_Adam_b1 = "0.9"
-Opti_Adam_b2 = "0.999"
+Optimizer <- "SGD"            # or SGD/RMSProp/Adam
+Opti_RMSProp_rho = "0.9"      # paste0("--rho=", Opti_RMSProp_rho),
+Opti_Adam_b1 = "0.9"          # paste0("--beta1=", Opti_Adam_b1),
+Opti_Adam_b2 = "0.999"        # paste0("--beta2=", Opti_Adam_b2),
 Loss <- "CROSS_ENTROPY"
 epochs <- "150"
 n_TrainingSample <- "-1"
@@ -168,14 +165,13 @@ system2("Dense_NN.exe",
           paste0("--learning_rate=", LearningRate),
           paste0("--lr_mode=", LR_dynamic),
           paste0("--min_delta=", MinDelta), 
-          paste0("--init=", WeightInitialization),
-          "--print_config"
+          paste0("--init=", WeightInitialization)
         ),
         stdout = "",
         stderr = ""
 )
 
- #########################################################################
+#########################################################################
 #
 # To graphically display the training parameters and weight matrices,
 # run the entire R script “Display_Training_Progress.R.”
