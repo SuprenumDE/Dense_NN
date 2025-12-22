@@ -2,18 +2,18 @@
 #ifndef LOSS_FUNCTIONS_H
 #define LOSS_FUNCTIONS_H
 
-// NN Verlustfunktionen
+// NN Loss Functions
 // 
-// Neuronales Netz für das MNIST-Beispiel
-// auf Basis von "Eigen"
+// Dense neural network based on “Eigen”
 // 
-// Entwickler: Guenter Faes, spv@faes.de
-// Version 0.0.2, 27.07.2025
+// Developer: Guenter Faes, spv@faes.de
+// Version 0.0.3, 22.12.2025
 // --------------------------------------
 
 
 
 #include "Eigen/Eigen"
+#include <memory>
 
 enum class LossType {
     CROSS_ENTROPY,
@@ -34,7 +34,7 @@ class CrossEntropyLoss : public LossFunction {
 public:
     double compute(const Eigen::VectorXd& output, const Eigen::VectorXd& target) const override;
 
-    // Erwartet: target ist ein One-Hot-Vektor
+    // Expected: target is a one-hot vector
     Eigen::VectorXd gradient(const Eigen::VectorXd& output, const Eigen::VectorXd& target) const override {
         return output - target;
     }
@@ -45,7 +45,7 @@ class MSELoss : public LossFunction {
 public:
     double compute(const Eigen::VectorXd& output, const Eigen::VectorXd& target) const override;
 
-	// Berechnet den Gradient der MSE-Verlustfunktion
+	// Calculates the gradient of the MSE loss function:
     Eigen::VectorXd gradient(const Eigen::VectorXd& output, const Eigen::VectorXd& target) const override {
         return 2.0 * (output - target) / output.size();
     }
@@ -67,7 +67,7 @@ public:
     }
 };
 
-// Enum in String konvertieren und umgekehrt:
+// Convert enum to string and vice versa:
 inline std::string to_string(LossType lt) {
     switch (lt) {
     case LossType::CROSS_ENTROPY: return "CROSS_ENTROPY";
@@ -85,7 +85,7 @@ inline LossType loss_from_string(const std::string& s) {
 }
 
 
-// Factory-Funktion zum Erstellen der Loss-Funktion basierend auf dem LossType
+// Factory function for creating the loss function based on the LossType:
 std::unique_ptr<LossFunction> createLossFunction(LossType type);
 
 #endif // LOSS_FUNCTIONS_H
