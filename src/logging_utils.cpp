@@ -12,33 +12,43 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-
-// Logging-Funktionen für Trainings- und Validierungsmetriken
+#include <fstream>
 
 std::string timestamp_now() {
     std::time_t now = std::time(nullptr);
-    struct tm timeinfo;
+    std::tm timeinfo{};
     char buf[100];
 
-    // Microsoft-sicher: localtime_s(dst, src)
-    if (localtime_s(&timeinfo, &now) == 0) {
+// Which OS?
+#if defined(_WIN32)
+    // Windows: localtime_s(&dst, &src)
+    if (localtime_s(&timeinfo, &now) == 0)
+#else
+    // POSIX (Linux, macOS, Raspberry Pi): localtime_r(&src, &dst)
+    if (localtime_r(&now, &timeinfo) != nullptr)
+#endif
+    {
+        // Variante 1:
         std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
         return std::string(buf);
+
+        // Variante 2:
+        /*
+        std::ostringstream oss;
+        oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S");
+        return oss.str();
+        */
     }
-    else {
-        return "UNKNOWN_TIME";
-    }
+
+    return "UNKNOWN_TIME";
 }
 
-
-// Schreibt den Header für die Log-Datei:
 void write_log_header(std::ofstream& log) {
     log << "# Start of training: " << timestamp_now() << "\n";
     log << "Epoch, Loss, Classification_rate, Val_loss, Val_accuracy, duration, learning_rate\n";
     log.flush();
 }
 
-// Loggt eine Epoche mit den entsprechenden Metriken:
 void log_epoch(std::ofstream& log,
     int epoch,
     double train_loss,
@@ -46,8 +56,8 @@ void log_epoch(std::ofstream& log,
     double val_loss,
     double val_accuracy,
     double epoch_time,
-    double learning_rate) {
-
+    double learning_rate)
+{
     log << epoch << ","
         << train_loss << ","
         << train_accuracy * 100 << ","
