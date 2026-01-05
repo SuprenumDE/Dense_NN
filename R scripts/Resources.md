@@ -6,6 +6,6 @@
 4. [Iterative Training of a Deep Learning Structure with Dense NN](https://youtu.be/IxJUkCk8yvA), This video describes the ***iterative*** training of a deep learning structure in an R workflow using the lean and highly efficient Dense_NN program. This means that when new training data becomes available, the already trained network can be further trained with the new data.
 5. [Dense NN and use of the RMSProp and Adam optimizers](https://youtu.be/lVIkmxNejVM), This video uses an R workflow as an example to describe how the new ***RMSProp*** and ***Adam*** (V0.1.20) **optimizers** are used to train a deep learning structure.
 6. [Dense_NN, CIFAR-10 and SVD](https://youtu.be/LYoJIlt-STs), This video demonstrates the effect of dimensionality reduction using SVD (singular value decomposition) using the CIFAR-10 dataset as an example. 
-7. [Deep Learning Structures with Dense_NN on a Raspberry Pi5](), This video describes how ***Dense_NN can be used on a Linux system***. To do this, Dense_NN is installed on a Raspberry Pi5 and the training of a deep learning structure is again demonstrated using the MNIST data set as an example.
+7. [Deep Learning Structures with Dense_NN on a Raspberry Pi5](https://youtu.be/_UKoZ-AY2UM), This video describes how ***Dense_NN can be used on a Linux system***. To do this, Dense_NN is installed on a Raspberry Pi5 and the training of a deep learning structure is again demonstrated using the MNIST data set as an example.
 ![R -> Raspberry Pi5 -> R](https://github.com/SuprenumDE/EigenNET/blob/main/images/Rapberry_Pi5_Workflow.png)
 
