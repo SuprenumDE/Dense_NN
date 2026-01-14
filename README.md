@@ -18,7 +18,8 @@
 
 **... and all this without a gigantic framework such as TensorFlow!**
 
-Dense_NN, *version 0.1.20* dated November 14, 2025, was developed under ISO standard C++20 and Eigen version 3.4.0.
+Dense_NN, *version 0.1.30* dated January 14, 2026, was developed under ISO standard C++20 and Eigen version 3.4.0. This version enables parallel training of deep learning structures without the user having to or being able to make any inputs. The available system resources are used. Under Linux, the number of threads can be specified with export OMP_NUM_THREADS=x (x = number of threads).
+
 I would be delighted if this project is helpful to you and you use it or contribute to it.
 
 Dense_NN can be [installed](https://github.com/SuprenumDE/Dense_NN/tree/main/installation%20files) on *Windows using an msi file*, and the program execution arguments are displayed via “help”:
