@@ -12,7 +12,7 @@
 // Trim-Funktion
 std::string trim(const std::string& s);
 
-// Argmax für Klassifikation
+// Argmax for classification
 int argmax(const Eigen::VectorXd& vec);
 
 // Dataset-Statistik ausgeben
