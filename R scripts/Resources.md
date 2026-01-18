@@ -8,4 +8,4 @@
 6. [Dense_NN, CIFAR-10 and SVD](https://youtu.be/LYoJIlt-STs), This video demonstrates the effect of dimensionality reduction using SVD (singular value decomposition) using the CIFAR-10 dataset as an example. 
 7. [Deep Learning Structures with Dense_NN on a Raspberry Pi5](https://youtu.be/_UKoZ-AY2UM), This video describes how ***Dense_NN can be used on a Linux system***. To do this, Dense_NN is installed on a Raspberry Pi5 and the training of a deep learning structure is again demonstrated using the MNIST data set as an example.
 ![R -> Raspberry Pi5 -> R](https://github.com/SuprenumDE/EigenNET/blob/main/images/Rapberry_Pi5_Workflow.png)
-
+8. [Parallel Dense Network Training with Dens_NN](https://youtu.be/uR33e8AVX2w), This video demonstrates the ***parallel training of a dense network***. It also shows how to use it on a Raspberry Pi5. The effect of managing parallel processes by overloading the Pi5 becomes apparent. This is due to the resources of the Pi5 and not to Dense_NN.
