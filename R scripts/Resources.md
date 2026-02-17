@@ -9,3 +9,6 @@
 7. [Deep Learning Structures with Dense_NN on a Raspberry Pi5](https://youtu.be/_UKoZ-AY2UM), This video describes how ***Dense_NN can be used on a Linux system***. To do this, Dense_NN is installed on a Raspberry Pi5 and the training of a deep learning structure is again demonstrated using the MNIST data set as an example.
 ![R -> Raspberry Pi5 -> R](https://github.com/SuprenumDE/EigenNET/blob/main/images/Rapberry_Pi5_Workflow.png)
 8. [Parallel Dense Network Training with Dens_NN](https://youtu.be/uR33e8AVX2w), This video demonstrates the ***parallel training of a dense network***. It also shows how to use it on a Raspberry Pi5. The effect of managing parallel processes by overloading the Pi5 becomes apparent. This is due to the resources of the Pi5 and not to Dense_NN.
+9. [Dense_NN and Diamonds](https://youtu.be/-GsECMaGzKY), ***MAE, ReLU, and Outlier: A Realistic Regression Workflow with Dense_NN (Diamonds Dataset)***   
+The video ***Dense_NN and Diamonds*** describes the training of a deep learning structure of the dense network type for training a regression model for predicting diamond prices.
+This highlighted a number of challenges, and multiple linear regression was performed as an alternative.
